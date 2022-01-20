@@ -2,8 +2,18 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import Chance from 'chance';
 
+export interface Attribute {
+  trait_type: string;
+  value: any;
+  display_type?: string;
+}
+
 type Data = {
+  description: string;
+  external_url: string;
+  image: string;
   name: string;
+  attributes: Attribute[];
 };
 
 export default function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
@@ -12,15 +22,13 @@ export default function handler(req: NextApiRequest, res: NextApiResponse<Data>)
   const id = Number(idParam);
 
   const chance = new Chance(id);
-
-  // faker.seed(id);
   const avatar = `https://avatars.dicebear.com/api/personas/${id}.svg`;
 
-  const metadata = {
-    description: chance.sentence({ words: 10 }),
+  const params = Object.assign({}, {
+    description: chance.paragraph(),
     external_url: `${host}/api/nft-metadata/${id}.json`,
     image: avatar,
-    name: chance.name(),
+    name: chance.animal({ type: 'pet' }),
     attributes: [
       {
         trait_type: 'Base',
@@ -62,6 +70,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse<Data>)
         value: 2,
       },
     ],
+  }, req.query, { id });
+
+  const metadata: Data = {
+    ...params,
   };
+
   res.status(200).json(metadata);
 }
