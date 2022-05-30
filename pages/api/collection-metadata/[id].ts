@@ -1,6 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
 import Chance from 'chance';
+import { URLSearchParams } from 'url';
 
 type Data = {
   image: string;
@@ -18,11 +19,16 @@ export default function handler(req: NextApiRequest, res: NextApiResponse<Data>)
   const id = Number(idParam);
   const chance = new Chance(id);
 
+  const p = new URLSearchParams({ ...req.query, id } as any)
+  const u = new URL(`${host}/api/nft-metadata/${id}.json`);
+
+  u.search = p.toString();
+
   const params = Object.assign({}, {
     image: `https://avatars.dicebear.com/api/personas/${id}.svg`,
     name: `${chance.animal({ type: 'pet' })} Collection`,
     description: chance.paragraph(),
-    external_link: `${host}/api/collection-metadata/${id}`,
+    external_link: u.toString(),
     seller_fee_basis_points: 250, //Indicates a 2.5% seller fee.
     fee_recipient: "0x0000000000000000000000000000000000000000"
   }, req.query, { id });

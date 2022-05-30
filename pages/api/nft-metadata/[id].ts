@@ -5,7 +5,7 @@ import Chance from 'chance';
 export interface Attribute {
   trait_type: string;
   value: any;
-  display_type?: string;
+  display_type?: string | 'number' | 'boost_number' | 'boost_percentage' | 'date';
 }
 
 type Data = {
